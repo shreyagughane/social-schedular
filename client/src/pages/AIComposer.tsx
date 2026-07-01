@@ -32,13 +32,47 @@ const AIComposer = () => {
         fetchGenerations();
     }, [])
 
-    const handleGenerate = async () => {
-        setLoading(true)
-        setTimeout(() => {
-            setLoading(false)
+   const handleGenerate = async () => {
+    if (!prompt) return;
 
-        }, 2000)
+    setLoading(true);
+
+    try {
+        const res = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/generate-post`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    prompt,
+                    tone,
+                    generateImage,
+                }),
+            }
+        );
+
+        const data = await res.json();
+
+        // Add new generation to UI list
+        setGenerations((prev) => [
+            {
+                _id: Date.now().toString(),
+                createdAt: new Date().toISOString(),
+                tone,
+                content: data.caption,
+                mediaUrl: data.imageUrl,
+                prompt,
+            },
+            ...prev,
+        ]);
+    } catch (err) {
+        console.error("Generate error:", err);
     }
+
+    setLoading(false);
+};
     const handleSchedule =async ()=>{
         setScheduling(true)
         setTimeout(() => {

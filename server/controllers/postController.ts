@@ -4,6 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import cloudinary from "../config/cloudinary.js";
 import { Generation } from "../models/Generation.js";
 import { Post } from "../models/Post.js";
+import { parse } from "node:path";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const generateImage = (prompt: string) => {
   const encoded = encodeURIComponent(prompt);
@@ -19,8 +20,19 @@ export const generatePost = async (req: AuthRequest, res: Response):Promise<void
   try {
     const { prompt, tone,generateImage: shouldGenerateImage} = req.body;
     const apiKey =process.env.GEMINI_API_KEY;
-    if(!apiKey){
-      res.status(400).json({message:"Gemini API key is missing.Please add it to your server/.env fileURLToPath."});
+    if(!req.user?._id){
+      res.status(400).json({message:"User not authenticated"});
+      return;
+    }
+    if (!prompt) {
+      res.status(400).json({ message: "Prompt is required" });
+      return;
+    }
+    
+    if (!apiKey) {
+      res.status(500).json({
+        message: "Gemini API key is missing. Add GEMINI_API_KEY in .env",
+      });
       return;
     }
 
@@ -31,7 +43,7 @@ export const generatePost = async (req: AuthRequest, res: Response):Promise<void
 const result = await model.generateContent(`
 Generate a social media post based on this prompt: "${prompt}".
 
-Tone: ${tone}
+Tone: ${tone || "professional"}
 
 Include relevant hashtags.
 
@@ -45,25 +57,27 @@ Return the response as JSON with this format:
 const textResponse = result.response;
 
     
+    const rawText = result.response.text() || "";
+
     let content="";
     let imagePrompt=prompt;
     try {
-  const rawText = textResponse.text() || "";
+  
 
   const jsonMatch = rawText.match(/\{[\s\S]*\}/);
 
-  const data = jsonMatch
+  const parse = jsonMatch
     ? JSON.parse(jsonMatch[0])
     : {
         content: rawText,
         imagePrompt: prompt,
       };
 
-  content = data.content;
-  imagePrompt = data.imagePrompt;
+  content = parse.content || rawText;
+  imagePrompt = parse.imagePrompt || prompt;
 
 } catch (e) {
-  content = textResponse.text();
+  content = rawText;
   imagePrompt = prompt;
 }
 let mediaUrl = "";
@@ -77,8 +91,9 @@ if (shouldGenerateImage) {
     });
 
     mediaUrl = uploadResult.secure_url;
-  } catch (err: any) {
-    console.error("Image generation failed:", err);
+  } catch (error
+  : any) {
+    console.error("Image generation failed:", error);
   }
 }
 
@@ -166,7 +181,7 @@ if (req.file) {
       });
       stream.end(req.file!.buffer);
     });
-    mediaUrl=result.secure_urll;
+    mediaUrl=result.secure_url;
     mediaType=result.resource_type==="video" ? "video":"image";
   }
   const post=await Post.create({

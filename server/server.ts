@@ -29,7 +29,7 @@ app.use(express.json());
 // =====================
 // Port
 // =====================
-const port = process.env.PORT || 3000;
+const port = Number  (process.env.PORT) || 10000;
 
 // =====================
 // Routes
@@ -41,7 +41,7 @@ app.get("/", (_req: Request, res: Response) => {
 app.use("/api/auth", authRouter);
 app.use("/api/oauth", socialAuthRouter);
 app.use("/api/accounts", accountRouter);
-//app.use("/api/image", imageRouter);
+app.use("/api/image", imageRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/activity", activityRouter)
 //Initialize Scheduler
@@ -61,6 +61,6 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 // =====================
 // Start Server (ONLY ONCE)
 // =====================
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+app.listen(port, "0.0.0.0",() => {
+  console.log(`Server is running at ${port}`);
 });

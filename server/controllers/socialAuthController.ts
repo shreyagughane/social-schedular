@@ -66,7 +66,7 @@ export const generateAuthURL = async (
 
     //const origin = req.headers.origin;
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
-    const redirectUrl = `${origin}/accounts`;
+    const redirectUrl = `${clientUrl}/accounts`;
 
     const result = await zernio.connect.getConnectUrl({
       path: {

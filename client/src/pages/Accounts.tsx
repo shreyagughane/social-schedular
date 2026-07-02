@@ -1,6 +1,6 @@
 import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { dummyAccountsData, PLATFORMS } from "../assets/assets";
+import { PLATFORMS } from "../assets/assets";
 import AccountList from "../components/AccountList";
 import PlatformPickerModal from "../components/PlatformPickerModal";
 import api from "../api/axios";

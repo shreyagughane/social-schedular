@@ -93,14 +93,14 @@ export default function Login() {
                         {loginState ? (
                             <>
                                 Don't have an account?{" "}
-                                <button onClick={() => setLoginState(false)} className="text-red-600 hover:text-red-700">
+                                <button type="button" onClick={() => setLoginState(false)} className="text-red-600 hover:text-red-700">
                                     Create one free
                                 </button>
                             </>
                         ) : (
                             <>
                                 Already have an account?{" "}
-                                <button onClick={() => setLoginState(true)} className="text-red-600 hover:text-red-700">
+                                <button type="button" onClick={() => setLoginState(true)} className="text-red-600 hover:text-red-700">
                                     Sign In
                                 </button>
                             </>
